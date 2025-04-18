@@ -6,34 +6,25 @@ using System.Threading.Tasks;
 
 namespace Assignment3
 {
-    public class LinkedList<T> : ILinkedListADT
+    public class LinkedList : ILinkedListADT
     {
         public Node<User> Head { get; set; }
-        public Node<User> Tail { get; set; }
         public int Amount;
 
         public LinkedList()
         {
             Head = null;
-            Tail = null;
             Amount = 0;
         }
 
         public bool IsEmpty()
         {
-            if(Head == null &&  Tail == null && Amount == 0)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return Head == null && Amount == 0;
         }
 
         public void Clear()
         {
-            Head = Tail = null;
+            Head = null;
             Amount = 0;
         }
 
@@ -43,53 +34,52 @@ namespace Assignment3
             if (Head == null)
             {
                 Head = node;
-                Tail = node;
             }
             else
             {
-                Tail.Next = node;
-                Tail = node;
+                Node<User> current = Head;
+                while (current.Next != null)
+                {
+                    current = current.Next;
+                }
+                current.Next = node;
             }
+            Amount++;
         }
 
         public void AddFirst(User data)
         {
             Node<User> node = new Node<User>(data);
-            if (Head == null)
-            {
-                Head = node;
-                Tail = node;
-            }
-            else
-            {
-                node.Next = Head;
-                Head = node;
-            }
+            node.Next = Head;
+            Head = node;
+            Amount++;
         }
 
         public void Add(User data, int index)
         {
             try
             {
-                if (index > Amount-1 || index < 0)
+                if (index > Amount || index < 0)
                 {
                     throw new IndexOutOfRangeException();
+                }
+
+                Node<User> node = new Node<User>(data);
+
+                if (index == 0)
+                {
+                    AddFirst(data);
                 }
                 else
                 {
                     Node<User> current = Head;
-                    Node<User> node = new Node<User>(data);
-                    if (Head == null)
+                    for (int i = 0; i < index - 1; i++)
                     {
-                        Head = Tail = node;
+                        current = current.Next;
                     }
-                    else
-                    {
-                        while (index != Amount - 2)
-                        {
-                            current = current.Next;
-                        }
-                    }
+                    node.Next = current.Next;
+                    current.Next = node;
+                    Amount++;
                 }
             }
             catch (IndexOutOfRangeException)
@@ -100,26 +90,23 @@ namespace Assignment3
             {
                 Console.WriteLine(ex.Message);
             }
-
         }
 
         public void Replace(User data, int index)
         {
             try
             {
-                if (index > Amount-1 || index < 0)
+                if (index >= Amount || index < 0)
                 {
                     throw new IndexOutOfRangeException();
                 }
-                else
-                {
-                    Node<User> current = Head;
-                    while (index != Amount-2)
-                    {
-                        current = current.Next;
-                    }
 
+                Node<User> current = Head;
+                for (int i = 0; i < index; i++)
+                {
+                    current = current.Next;
                 }
+                current.Data = data;
             }
             catch (IndexOutOfRangeException)
             {
@@ -141,15 +128,10 @@ namespace Assignment3
             if (Head == null)
             {
                 Console.WriteLine("List is already empty");
+                return;
             }
-            if (Amount == 1)
-            {
-                Head = Tail = null;
-            }
-            else
-            {
-                Head.Next = Head;
-            }
+
+            Head = Head.Next;
             Amount--;
         }
 
@@ -160,14 +142,15 @@ namespace Assignment3
                 Console.WriteLine("List is already empty");
                 return;
             }
-            else if (Amount == 1)
+
+            if (Amount == 1)
             {
-                Head = Tail = null;
+                Head = null;
             }
             else
             {
                 Node<User> current = Head;
-                while (current.Next != Tail)
+                while (current.Next.Next != null)
                 {
                     current = current.Next;
                 }
@@ -180,18 +163,23 @@ namespace Assignment3
         {
             try
             {
-                if (index > Amount-1 || index < 0)
+                if (index >= Amount || index < 0)
                 {
                     throw new IndexOutOfRangeException();
+                }
+
+                if (index == 0)
+                {
+                    RemoveFirst();
                 }
                 else
                 {
                     Node<User> current = Head;
-                    while (index != Amount - 2)
+                    for (int i = 0; i < index - 1; i++)
                     {
                         current = current.Next;
                     }
-                    current.Next = null;
+                    current.Next = current.Next.Next;
                     Amount--;
                 }
             }
@@ -205,20 +193,41 @@ namespace Assignment3
             }
         }
 
-        public User Getdata(int index)
+        public User GetValue(int index)
         {
+            if (index < 0 || index >= Amount)
+            {
+                throw new IndexOutOfRangeException("Index is out of range.");
+            }
+
             Node<User> current = Head;
-            while ()
+            for (int i = 0; i < index; i++)
+            {
+                current = current.Next;
+            }
+
+            return current.Data;
         }
 
         public int IndexOf(User data)
         {
-            return 0;
+            Node<User> current = Head;
+            int index = 0;
+            while (current != null)
+            {
+                if (current.Data.Equals(data))
+                {
+                    return index;
+                }
+                current = current.Next;
+                index++;
+            }
+            return -1;
         }
 
         public bool Contains(User data)
         {
-            return false;
+            return IndexOf(data) != -1;
         }
     }
 }
